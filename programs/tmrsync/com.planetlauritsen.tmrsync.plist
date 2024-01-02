@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.planetlauritsen.tmrsync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/libexec/tmrsync</string>
+        <string>mini</string>
+        <string>/Volumes/Media/backups/chads-mbp</string>
+    </array>
+
+
+    <key>StandardOutPath</key>
+    <string>/tmp/tmrsync.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/tmrsync.err</string>
+    <key>Debug</key>
+    <true/>
+
+    <key>StartInterval</key>
+<!--    <integer>21600</integer>-->
+    <integer>60</integer>
+
+</dict>
+</plist>
