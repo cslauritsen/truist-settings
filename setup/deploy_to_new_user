@@ -2,6 +2,9 @@
 
 set -eu
 
+pushd $(dirname $0)
+SETTINGS=$PWD/settings
+popd
 REALHOME="$HOME"
 	SETTINGS="$REALHOME/src/settings"
 		DOTFILES="$SETTINGS/dotfiles"

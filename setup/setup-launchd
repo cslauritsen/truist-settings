@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -eux
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+cd $SCRIPT_DIR
+
+for kind in LaunchAgents LaunchDaemons; do
+  if [[ -d $kind ]]; then
+    cd $kind
+    for f in *.plist; do
+      test -f ~/Library/$kind/$f && rm -f ~/Library/$kind/$f
+      ln $f ~/Library/$kind/
+      launchctl load ~/Library/$kind/$(basename $f)
+    done
+    cd ..
+  fi
+done
