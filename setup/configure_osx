@@ -15,6 +15,9 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 # show all filename extension in Finder
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
+# show hidden files in finder, too
+defaults write com.apple.Finder AppleShowAllFiles true
+
 defaults write NSGlobalDomain CGDisableCursorLocationMagnification -bool YES
 
 # make SMB less-slow
