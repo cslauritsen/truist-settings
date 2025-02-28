@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.user.vault-oidc-auth</string>
+
+    <!-- at startup, and periodically thereafter, authenticate with Vault using OIDC -->
+    <key>ProgramArguments</key>
+    <array>
+      <string>/opt/homebrew/bin/vault</string>
+      <string>login</string>
+      <string>-method</string>
+      <string>oidc</string>
+      <string>-field</string>
+      <string>token_duration</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/vault-oidc-auth.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/vault-oidc-auth.err</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StartInterval</key>
+    <integer>7200</integer>
+
+    <key>KeepAlive</key>
+    <false/>
+
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>VAULT_ADDR</key>
+	<string>https://vault.sherwin.com</string>
+    </dict>
+
+  </dict>
+</plist>
