@@ -20,6 +20,9 @@
     <key>Debug</key>
     <true/>
 
+    <key>RunAtLoad</key>
+    <true/>
+
     <key>StartInterval</key>
     <integer>21600</integer>
 <!--    <integer>60</integer>-->
