@@ -1,0 +1,7 @@
+alias ls='ls --color -F'
+alias h=helm
+alias k=kubectl
+alias hf=helmfile
+alias jh=/usr/libexec/java_home
+alias py='/usr/bin/env python3'
+alias kt=kubetail

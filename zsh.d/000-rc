@@ -1,0 +1,20 @@
+set -o vi
+
+idea() {
+  source ~/.vault-secrets-local
+  #nohup /Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea "$@" 2>&1 | ts >> /tmp/idea.log &
+  if [ -d ~/Applications/IntelliJ\ IDEA\ Ultimate.app ]
+	then
+		nohup ~/Applications/IntelliJ\ IDEA\ Ultimate.app/Contents/MacOS/idea "$@" 2>&1 | ts >> /tmp/idea.log &
+	else
+  		nohup /Applications/IntelliJ\ IDEA\ 2024.3\ EAP.app/Contents/MacOS/idea "$@" 2>&1 | ts >> /tmp/idea.log &
+	fi
+  
+}
+
+pycharm() {
+  nohup /Applications/PyCharm.app/Contents/MacOS/pycharm "$@" 2>&1 | ts >> /tmp/pycharm.log &
+}
+
+
+path+=("$HOME/bin")
