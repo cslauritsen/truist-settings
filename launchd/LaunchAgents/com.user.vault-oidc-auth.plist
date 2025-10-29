@@ -8,11 +8,15 @@
     <key>ProgramArguments</key>
     <array>
       <string>/opt/homebrew/bin/vault</string>
+      <string>token</string>
+      <string>renew</string>
+      <!--
       <string>login</string>
       <string>-method</string>
       <string>oidc</string>
       <string>-field</string>
       <string>token_duration</string>
+      -->
     </array>
 
     <key>StandardOutPath</key>
@@ -25,7 +29,7 @@
     <true/>
 
     <key>StartInterval</key>
-    <integer>7200</integer>
+    <integer>7100</integer>
 
     <key>KeepAlive</key>
     <false/>

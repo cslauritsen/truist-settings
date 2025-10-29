@@ -7,6 +7,12 @@ auto_auth {
       token_file_path = "/Users/csl04r/.vault-token"
     }
   }
+  sink "file" {
+    config = {
+      path = "/Users/csl04r/.vault-token"
+      mode = 0600
+    }
+  }
 }
 
 template_config {

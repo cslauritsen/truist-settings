@@ -7,8 +7,8 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/libexec/tmrsync</string>
-        <string>mini</string>
+        <string>/usr/local/bin/tmrsync</string>
+        <string>wmini</string>
         <string>/Volumes/Media/backups/chads-mbp</string>
     </array>
 
@@ -24,8 +24,6 @@
     <true/>
 
     <key>StartInterval</key>
-    <integer>21600</integer>
-<!--    <integer>60</integer>-->
-
+    <integer>14400</integer>
 </dict>
 </plist>

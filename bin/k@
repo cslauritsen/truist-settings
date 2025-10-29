@@ -1,48 +1,55 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-
+# Trap to reset terminal on exit
+trap 'reset' EXIT
 nodes=(a b c)
 node=${nodes[$RANDOM % ${#nodes[@]}]}
-echo using node $node
+echo "Using node: $node"
 
 get_remote_kubeconfig() {
-   store=$1; shift
-   server=$1; shift
-   passwd=$(op read "op://Sherwin/gdpumx6lgxt2imtyn4mbhyktfe/password")
-   expect -c "
-    spawn ssh admin@$store-server${server}.stores.sherwin.com k3s kubectl config view --flatten
-    expect \"password:\"
-    send \"$(op read 'op://Sherwin/gdpumx6lgxt2imtyn4mbhyktfe/password')\r\"
-    interact
-   " \
-	| grep -v spawn \
-	| grep -v admin@$store- \
-   	| sed "s/127.0.0.1/${storeno}-server${server}.stores.sherwin.com/" \
-   	| sed "s/default/cluster-$storeno/"
+    local store=$1
+    local server=$2
+    local passwd
+    passwd=$(op read "op://Sherwin/gdpumx6lgxt2imtyn4mbhyktfe/password")
+
+    expect -c "
+        log_user 0
+        spawn ssh admin@${store}-server${server}.stores.sherwin.com k3s kubectl config view --flatten
+        expect \"password:\"
+        send \"${passwd}\r\"
+        expect eof
+    " \
+    | sed "s/127.0.0.1/${store}-server${server}.stores.sherwin.com/" \
+    | sed "s/default/cluster-${store}/"
 }
 
 usage() {
- echo USAGE $0 store-number
- echo $(basename $0) store-number
-} 
+    echo "USAGE: $0 store-number"
+    echo "$(basename "$0") store-number"
+}
 
-storeno=$1
-if [[ "x" = "x$storeno" ]]
-then
- usage
- exit 1
-else
-  shift
+if [[ $# -lt 1 ]]; then
+    usage
+    exit 1
 fi
+storeno=$1
+shift
 
 tmp="/tmp/kubeconfigs/$storeno"
 mkdir -p "$tmp"
+
 n=${NODE:-$node}
 export KUBECONFIG="$tmp/kubeconfig"
-test -f "$tmp/kubeconfig" || get_remote_kubeconfig $storeno $n > $KUBECONFIG
+
+if [[ ! -f "$KUBECONFIG" ]]; then
+    get_remote_kubeconfig "$storeno" "$n" > "$KUBECONFIG"
+fi
+
 echo "Opening a new shell with the new KUBECONFIG"
-export PS1="kube $storeno> "
-bash
-#kubectl "$@"
+(
+    export KUBECONFIG="$tmp/kubeconfig"
+    export PS1="kube $storeno> "
+    bash --noprofile --norc
+)
