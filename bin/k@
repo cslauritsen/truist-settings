@@ -2,27 +2,59 @@
 
 set -euo pipefail
 
-# Trap to reset terminal on exit
-trap 'reset' EXIT
+# Enable debug logging
+DEBUG=true
+LOGFILE="/tmp/kubeconfig_debug.log"
+
+# Ensure log file exists
+touch "$LOGFILE"
+
+log() {
+    local timestamp
+    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "[$timestamp] [DEBUG] $*" | tee -a "$LOGFILE"
+}
+
+error() {
+    local timestamp
+    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "[$timestamp] [ERROR] $*" | tee -a "$LOGFILE" >&2
+}
+
+# Trap to reset terminal and log exit
+trap 'reset; log "Script exited and terminal reset."' EXIT
 nodes=(a b c)
 node=${nodes[$RANDOM % ${#nodes[@]}]}
-echo "Using node: $node"
+log "Randomly selected node: $node"
 
 get_remote_kubeconfig() {
     local store=$1
     local server=$2
-    local passwd
-    passwd=$(op read "op://Sherwin/gdpumx6lgxt2imtyn4mbhyktfe/password")
+    log "Fetching kubeconfig for store $store, server $server"
 
-    expect -c "
-        log_user 0
-        spawn ssh admin@${store}-server${server}.stores.sherwin.com k3s kubectl config view --flatten
-        expect \"password:\"
-        send \"${passwd}\r\"
-        expect eof
+    local passwd
+    if ! passwd=$(op read "op://Sherwin/gdpumx6lgxt2imtyn4mbhyktfe/password"); then
+        error "Failed to retrieve password from 1Password"
+        exit 2
+    fi
+
+
+    passwd=$(op read "op://Sherwin/gdpumx6lgxt2imtyn4mbhyktfe/password")
+    if ! expect -c "
+     spawn ssh -o \"PreferredAuthentications password\" -o \"StrictHostKeyChecking no\" admin@${store}-server${server}.stores.sherwin.com k3s kubectl config view --flatten
+     expect \"password:\"
+     send \"${passwd}\r\"
+     interact
     " \
-    | sed "s/127.0.0.1/${store}-server${server}.stores.sherwin.com/" \
-    | sed "s/default/cluster-${store}/"
+        | grep -v spawn \
+        | grep -v admin@$store- \
+        | sed "s/127.0.0.1/${storeno}-server${server}.stores.sherwin.com/" \
+        | sed "s/default/cluster-$storeno/" > $KUBECONFIG; then
+        error "Failed to fetch kubeconfig from remote server"
+        exit 3
+    fi
+
+    log "Successfully fetched kubeconfig"
 }
 
 usage() {
@@ -32,24 +64,39 @@ usage() {
 
 if [[ $# -lt 1 ]]; then
     usage
+    error "No store number provided"
     exit 1
 fi
+
 storeno=$1
 shift
+log "Store number provided: $storeno"
 
 tmp="/tmp/kubeconfigs/$storeno"
+log "Using temp directory: $tmp"
 mkdir -p "$tmp"
 
 n=${NODE:-$node}
+log "Using node: $n"
+
 export KUBECONFIG="$tmp/kubeconfig"
+log "KUBECONFIG path: $KUBECONFIG"
 
 if [[ ! -f "$KUBECONFIG" ]]; then
-    get_remote_kubeconfig "$storeno" "$n" > "$KUBECONFIG"
+    log "Kubeconfig not found, retrieving from remote"
+    get_remote_kubeconfig "$storeno" "$n"
+else
+    log "Kubeconfig already exists, skipping fetch"
 fi
 
 echo "Opening a new shell with the new KUBECONFIG"
-(
-    export KUBECONFIG="$tmp/kubeconfig"
-    export PS1="kube $storeno> "
-    bash --noprofile --norc
-)
+export KUBECONFIG="$tmp/kubeconfig"
+export PS1="kube $storeno> "
+log "Launching subshell with custom PS1"
+alias k=kubectl
+#bash --noprofile --norc
+cat <<% > /tmp/kubeconfigs/rcfile
+alias k=kubectl
+%
+bash --rcfile /tmp/kubeconfigs/rcfile
+
