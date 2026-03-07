@@ -2,3 +2,12 @@ source /usr/share/git-core/contrib/completion/git-prompt.sh
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWUPSTREAM="auto"
 export PS1='\[\e[32m\]\u@\h\[\e[0m\]:\[\e[34m\]\w\[\e[33m\]$(__git_ps1 " (%s)")\[\e[0m\]\$ '
+
+
+gh() {
+       if [ -f .gh-account ]; then
+           GH_TOKEN=$(command gh auth token --user "$(cat .gh-account)") command gh "$@"
+       else
+           command gh "$@"
+       fi
+   }
