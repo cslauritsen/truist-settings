@@ -8,6 +8,7 @@ alias kt=kubetail
 
 alias hd='/usr/bin/ssh -t hdprw.sherwin.com bash .bash_profile.menu'
 alias hd2='/usr/bin/ssh hdqak.sherwin.com'
+alias tf=terraform
 
 ghrc() {
 	tag=$1 ; shift 

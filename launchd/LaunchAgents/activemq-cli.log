@@ -1,0 +1,4 @@
+1740777890770:receive --url tcp://artemis-activemq-artemis.lb9937-service.stores.sherwin.com:61616?sslEnabled=true --timeoutSeconds 30
+1740781019563:transmit --url tcp://artemis.lb0020-service.stores.sherwin.com:61616;sslEnabled=true
+1740781132791:transmit --url tcp://artemis.lb0020-service.stores.sherwin.com:61616?sslEnabled=true
+1740781153554:transmit --url tcp://artemis.lb0020-service.stores.sherwin.com:61616?sslEnabled=true --threads 50

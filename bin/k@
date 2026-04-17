@@ -89,14 +89,21 @@ else
     log "Kubeconfig already exists, skipping fetch"
 fi
 
-echo "Opening a new shell with the new KUBECONFIG"
-export KUBECONFIG="$tmp/kubeconfig"
-export PS1="kube $storeno> "
-log "Launching subshell with custom PS1"
+# if we were called as something with 'k9s' in the name
+if echo $0 | grep -q 'k9s'
+then
+	log "Launching k9s"
+	k9s || {
+		error "failed to launch k9s"
+	}
+else
+	log "Opening a new shell with the new KUBECONFIG"
+	export KUBECONFIG="$tmp/kubeconfig"
+	export PS1="kube $storeno> "
+	log "Launching subshell with custom PS1"
+	cat <<% > /tmp/kubeconfigs/rcfile
 alias k=kubectl
-#bash --noprofile --norc
-cat <<% > /tmp/kubeconfigs/rcfile
-alias k=kubectl
+alias kt=kubetail
 %
-bash --rcfile /tmp/kubeconfigs/rcfile
-
+	bash --rcfile /tmp/kubeconfigs/rcfile
+fi
